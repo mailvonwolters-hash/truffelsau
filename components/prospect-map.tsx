@@ -5,7 +5,7 @@ import { MapContainer, Marker, Popup, Polyline, TileLayer, useMap } from 'react-
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-type Appointment = { time: string; duration: number }
+type Appointment = { date: string; time: string; duration: number }
 type Prospect = { name: string; street: string; housenumber?: string; postcode: string; city: string; lat: number; lng: number; distance?: number; website?: string; phone?: string; opening_hours?: string; source: 'lead' | 'crm'; category?: 'A' | 'B' | 'C'; appointment?: Appointment }
 const colors = { A: '#ef4444', B: '#facc15', C: '#3b82f6', lead: '#b8f23f', crm: '#3b82f6' }
 const key = (p: Prospect) => `${p.name}|${p.street}|${p.housenumber || ''}|${p.postcode}|${p.city}`
