@@ -8,7 +8,11 @@ import { perkBridge } from '@/lib/perkBridge'
 const ProspectMap = dynamic(() => import('@/components/prospect-map').then((m) => m.ProspectMap), { ssr: false, loading: () => <div className="grid h-full place-items-center bg-[#dfe3df] text-sm text-[#52605a]">Karte wird geladen …</div> })
 type Category = 'A' | 'B' | 'C'
 type Appointment = { date: string; time: string; duration: number }
-type Prospect = { name: string; street: string; housenumber?: string; postcode: string; city: string; lat: number; lng: number; distance?: number; website?: string; phone?: string; email?: string; opening_hours?: string; source: 'lead' | 'crm' | 'mcdonalds'; category?: Category; appointment?: Appointment }
+type CustomerGroup = 'standard' | 'sh' | 'gl'
+type Prospect = { id?: string; tags?: string[]; name: string; street: string; housenumber?: string; postcode: string; city: string; lat: number; lng: number; distance?: number; website?: string; phone?: string; email?: string; opening_hours?: string; source: 'lead' | 'crm' | 'mcdonalds'; category?: Category; appointment?: Appointment }
+const customerGroup = (p: Pick<Prospect, 'id' | 'tags' | 'name'>): CustomerGroup => { const value = `${p.id ?? ''} ${p.tags?.join(' ') ?? ''} ${p.name}`.toLowerCase(); return /(^|\s)sh-|\bsh\b|simply\s*hair/.test(value) ? 'sh' : /(^|\s)gl-|\bgl\b|great\s*lengths/.test(value) ? 'gl' : 'standard' }
+const groupBadgeClass: Record<CustomerGroup, string> = { standard: 'bg-emerald-100 text-emerald-800 border-emerald-300', sh: 'bg-blue-100 text-blue-800 border-blue-300', gl: 'bg-purple-100 text-purple-800 border-purple-300' }
+const groupLabel: Record<CustomerGroup, string> = { standard: 'Trüffel-Bestandskunde', sh: 'Simply Hair', gl: 'Great Lengths' }
 type Branch = { label: string; tag: string; icon: string }
 const branches: Branch[] = [{ label: 'Friseure', tag: 'hairdresser', icon: '✦' }, { label: 'Gastronomie', tag: 'restaurant', icon: '⌁' }, { label: 'Handwerk', tag: 'craft', icon: '◇' }, { label: 'Medizin', tag: 'doctors', icon: '+' }]
 const colors: Record<Category | 'lead' | 'crm', string> = { A: '#ef4444', B: '#facc15', C: '#3b82f6', lead: '#b8f23f', crm: '#3b82f6' }
