@@ -16,6 +16,7 @@ type Customer = {
 }
 
 type Group = 'all' | 'standard' | 'sh' | 'gl'
+type ActiveChannel = 'standard' | 'sh' | 'gl'
 type SortKey = 'postcode' | 'name' | 'city'
 
 const groupOf = (customer: Customer) => {
@@ -31,7 +32,7 @@ const groupMeta = {
   gl: { label: 'Great Lengths', className: 'border-purple-300 bg-purple-100 text-purple-800' },
 } as const
 
-export function MasterDatabase({ customers, onClose }: { customers: Customer[]; onClose: () => void }) {
+export function MasterDatabase({ customers, activeChannel, onClose }: { customers: Customer[]; activeChannel: ActiveChannel; onClose: () => void }) {
   const [query, setQuery] = useState('')
   const [storedCustomers, setStoredCustomers] = useState<Customer[]>([])
   useEffect(() => {
@@ -57,12 +58,12 @@ export function MasterDatabase({ customers, onClose }: { customers: Customer[]; 
 
   const rows = useMemo(() => masterCustomers.filter((customer) => {
     const haystack = `${customer.name} ${customer.city ?? ''} ${customer.postcode ?? ''}`.toLowerCase()
-    return (group === 'all' || groupOf(customer) === group) && haystack.includes(query.toLowerCase())
+    return groupOf(customer) === activeChannel && (group === 'all' || groupOf(customer) === group) && haystack.includes(query.toLowerCase())
   }).sort((a, b) => {
     if (sort === 'postcode') return (a.postcode ?? '').localeCompare(b.postcode ?? '', 'de', { numeric: true })
     if (sort === 'city') return (a.city ?? '').localeCompare(b.city ?? '', 'de')
     return a.name.localeCompare(b.name, 'de')
-  }), [masterCustomers, group, query, sort])
+  }), [activeChannel, masterCustomers, group, query, sort])
 
   function saveNote(customer: Customer, value: string) {
     const key = customer.id || `${customer.name}|${customer.postcode}|${customer.city}`
