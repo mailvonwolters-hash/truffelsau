@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Search, X } from 'lucide-react'
 
 type Customer = {
@@ -33,6 +33,19 @@ const groupMeta = {
 
 export function MasterDatabase({ customers, onClose }: { customers: Customer[]; onClose: () => void }) {
   const [query, setQuery] = useState('')
+  const [storedCustomers, setStoredCustomers] = useState<Customer[]>([])
+  useEffect(() => {
+    try {
+      const crm = JSON.parse(localStorage.getItem('truffelsau-crm-customers') || '[]')
+      const leads = JSON.parse(localStorage.getItem('truffelsau-leads') || '[]')
+      const saved = [...(Array.isArray(crm) ? crm : []), ...(Array.isArray(leads) ? leads : [])]
+      if (Array.isArray(saved)) setStoredCustomers(saved)
+    } catch { setStoredCustomers([]) }
+  }, [])
+  const masterCustomers = useMemo(() => {
+    const merged = [...customers, ...storedCustomers]
+    return Array.from(new Map(merged.map((customer) => [customer.id || `${customer.name}|${customer.postcode}|${customer.city}`, customer])).values())
+  }, [customers, storedCustomers])
   const [group, setGroup] = useState<Group>('all')
   const [sort, setSort] = useState<SortKey>('name')
   const [notes, setNotes] = useState<Record<string, string>>(() => {
@@ -42,14 +55,14 @@ export function MasterDatabase({ customers, onClose }: { customers: Customer[]; 
     try { return JSON.parse(localStorage.getItem('truffelsau-master-status') || '{}') } catch { return {} }
   })
 
-  const rows = useMemo(() => customers.filter((customer) => {
+  const rows = useMemo(() => masterCustomers.filter((customer) => {
     const haystack = `${customer.name} ${customer.city ?? ''} ${customer.postcode ?? ''}`.toLowerCase()
     return (group === 'all' || groupOf(customer) === group) && haystack.includes(query.toLowerCase())
   }).sort((a, b) => {
     if (sort === 'postcode') return (a.postcode ?? '').localeCompare(b.postcode ?? '', 'de', { numeric: true })
     if (sort === 'city') return (a.city ?? '').localeCompare(b.city ?? '', 'de')
     return a.name.localeCompare(b.name, 'de')
-  }), [customers, group, query, sort])
+  }), [masterCustomers, group, query, sort])
 
   function saveNote(customer: Customer, value: string) {
     const key = customer.id || `${customer.name}|${customer.postcode}|${customer.city}`
@@ -68,7 +81,7 @@ export function MasterDatabase({ customers, onClose }: { customers: Customer[]; 
   return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#17191b]/70 p-4" role="dialog" aria-modal="true" aria-label="Master-Datenbank & Kundenliste">
     <section className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#343938] bg-[#f5f3ef] shadow-2xl">
       <header className="flex items-center justify-between gap-4 border-b border-[#d7d3cc] bg-[#17191b] px-5 py-4 text-[#f5f3ef]">
-        <div><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#b8f23f]">Datenbestand</p><h2 className="text-xl font-bold">Master-Datenbank & Kundenliste</h2><p className="text-sm text-[#9a9c9c]">{rows.length.toLocaleString('de-DE')} von {customers.length.toLocaleString('de-DE')} Salons geladen</p></div>
+        <div><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#b8f23f]">Datenbestand</p><h2 className="text-xl font-bold">Master-Datenbank & Kundenliste</h2><p className="text-sm text-[#9a9c9c]">{rows.length.toLocaleString('de-DE')} von {masterCustomers.length.toLocaleString('de-DE')} Salons geladen</p></div>
         <button onClick={onClose} className="rounded-lg p-2 hover:bg-[#343938]" aria-label="Master-Datenbank schließen"><X className="size-5" /></button>
       </header>
       <div className="flex flex-wrap items-center gap-2 border-b border-[#d7d3cc] p-4">
