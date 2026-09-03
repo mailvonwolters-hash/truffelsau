@@ -112,7 +112,7 @@ function LocationControl({
     );
   }
   return (
-    <div className="leaflet-top leaflet-left z-[1000] m-3">
+    <div className="leaflet-top leaflet-left z-[1000] m-3 max-sm:fixed max-sm:bottom-20 max-sm:left-3 max-sm:top-auto max-sm:m-0">
       <button
         type="button"
         onClick={locate}
