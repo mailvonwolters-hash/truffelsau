@@ -1,0 +1,19 @@
+'use client'
+
+import { useRef } from 'react'
+import { Settings, Upload, RefreshCw, Database, X } from 'lucide-react'
+
+type Channel = 'standard' | 'sh' | 'gl'
+const channelMeta: Record<Channel, { label: string; prefix: string; active: string }> = {
+  standard: { label: 'Trüffel', prefix: 'TRU_', active: 'border-emerald-300 bg-emerald-100 text-emerald-800' },
+  sh: { label: 'Simply Hair', prefix: 'SH_', active: 'border-blue-300 bg-blue-100 text-blue-800' },
+  gl: { label: 'Great Lengths', prefix: 'GL_', active: 'border-purple-300 bg-purple-100 text-purple-800' },
+}
+
+export function AdminPanel({ open, onOpen, onClose, activeChannel, onChannelChange, onImport, onSync, onMaster }: { open: boolean; onOpen: () => void; onClose: () => void; activeChannel: Channel; onChannelChange: (channel: Channel) => void; onImport: (file: File) => void; onSync: () => void; onMaster: () => void }) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  return <>
+    <button type="button" onClick={onOpen} className="flex items-center justify-center gap-2 rounded-xl border border-[#52605a] bg-[#202423] px-3 py-2 text-xs font-semibold text-[#f5f3ef] hover:border-[#b8f23f]" aria-label="Admin öffnen"><Settings className="size-4" />Admin</button>
+    {open && <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#17191b]/70 p-4" role="dialog" aria-modal="true" aria-labelledby="admin-title"><section className="w-full max-w-lg rounded-2xl border border-[#52605a] bg-[#202423] p-5 text-[#f5f3ef] shadow-2xl"><div className="flex items-start justify-between gap-4"><div><p className="font-mono text-[10px] uppercase tracking-[.2em] text-[#b8f23f]">Administration</p><h2 id="admin-title" className="text-xl font-bold">Datenquellen & Kanäle</h2><p className="mt-1 text-sm text-[#9a9c9c]">Nur hier stehen Import, Sync und Masterliste bereit.</p></div><button type="button" onClick={onClose} className="rounded-lg p-2 hover:bg-[#343938]" aria-label="Admin schließen"><X className="size-5" /></button></div><div className="mt-5 grid gap-3"><div><p className="mb-2 text-xs font-semibold text-[#9a9c9c]">Aktiver Datenkanal</p><div className="grid grid-cols-3 gap-2">{(Object.keys(channelMeta) as Channel[]).map((channel) => <button type="button" key={channel} onClick={() => onChannelChange(channel)} className={`rounded-xl border px-2 py-3 text-xs font-semibold ${activeChannel === channel ? channelMeta[channel].active : 'border-[#52605a] text-[#9a9c9c] hover:bg-[#343938]'}`}>{channelMeta[channel].label}<span className="mt-1 block font-mono text-[10px] opacity-70">{channelMeta[channel].prefix}*</span></button>)}</div></div><div className="grid gap-2 sm:grid-cols-3"><button type="button" onClick={() => inputRef.current?.click()} className="flex items-center justify-center gap-2 rounded-xl border border-[#52605a] px-3 py-3 text-xs font-semibold hover:bg-[#343938]"><Upload className="size-4" />CSV importieren</button><button type="button" onClick={onSync} className="flex items-center justify-center gap-2 rounded-xl border border-[#52605a] px-3 py-3 text-xs font-semibold hover:bg-[#343938]"><RefreshCw className="size-4" />Perk synchronisieren</button><button type="button" onClick={onMaster} className="flex items-center justify-center gap-2 rounded-xl bg-[#b8f23f] px-3 py-3 text-xs font-semibold text-[#17191b] hover:bg-[#d2ff69]"><Database className="size-4" />Masterliste</button></div><input ref={inputRef} type="file" accept=".csv,text/csv" className="sr-only" onChange={(event) => { const file = event.target.files?.[0]; if (file) onImport(file); event.currentTarget.value = '' }} /></div></section></div>}
+  </>
+}
