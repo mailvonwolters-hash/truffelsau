@@ -5,7 +5,7 @@ const supabaseUrl = 'https://oxetkdardsfcahrmtbnq.supabase.co'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const allowedTags = new Set(['hairdresser', 'restaurant', 'craft', 'doctors'])
+    const allowedTags = new Set(['hairdresser', 'barber', 'restaurant', 'craft', 'doctors'])
     const radius = Number(body.radius)
     const payload = {
       query: typeof body.query === 'string' ? body.query.slice(0, 120) : undefined,
