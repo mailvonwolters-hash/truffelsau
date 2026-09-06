@@ -26,7 +26,6 @@ type Prospect = {
   distance?: number;
   website?: string;
   phone?: string;
-  opening_hours?: string;
   source: "lead" | "crm" | "mcdonalds";
   category?: "A" | "B" | "C";
   appointment?: Appointment;
