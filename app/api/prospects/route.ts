@@ -7,11 +7,13 @@ export async function POST(request: Request) {
     const body = await request.json()
     const allowedTags = new Set(['hairdresser', 'barber', 'restaurant', 'craft', 'doctors'])
     const radius = Number(body.radius)
+    const limit = Math.min(Math.max(Number(body.limit ?? 250), 1), 250)
     const payload = {
       query: typeof body.query === 'string' ? body.query.slice(0, 120) : undefined,
       lat: typeof body.lat === 'number' ? body.lat : undefined,
       lng: typeof body.lng === 'number' ? body.lng : undefined,
       radius: Number.isFinite(radius) ? Math.min(Math.max(radius, 1), 20) : 10,
+      limit,
       tag: allowedTags.has(body.tag) ? body.tag : 'hairdresser',
       resolveOnly: body.resolveOnly === true,
     }
